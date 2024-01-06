@@ -1,113 +1,167 @@
-import Image from 'next/image'
+"use client";
+import Pokemon from "../Components/Pokemon";
+import PokeComponent from "../Components/PokeComponent";
+import Image from "next/image";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { useEffect, useState } from "react";
+
+const POKEMON = [
+  {
+      name: "stench",
+      url: "https://pokeapi.co/api/v2/ability/1/"
+  },
+  {
+      name: "drizzle",
+      url: "https://pokeapi.co/api/v2/ability/2/"
+  },
+  {
+      name: "speed-boost",
+      url: "https://pokeapi.co/api/v2/ability/3/"
+  },
+  {
+      name: "battle-armor",
+      url: "https://pokeapi.co/api/v2/ability/4/"
+  },
+  {
+      name: "sturdy",
+      url: "https://pokeapi.co/api/v2/ability/5/"
+  },
+  {
+      name: "damp",
+      url: "https://pokeapi.co/api/v2/ability/6/"
+  },
+  {
+      name: "limber",
+      url: "https://pokeapi.co/api/v2/ability/7/"
+  },
+  {
+      name: "sand-veil",
+      url: "https://pokeapi.co/api/v2/ability/8/"
+  },
+  {
+      name: "static",
+      url: "https://pokeapi.co/api/v2/ability/9/"
+  },
+  {
+      name: "volt-absorb",
+      url: "https://pokeapi.co/api/v2/ability/10/"
+  },
+  {
+      name: "water-absorb",
+      url: "https://pokeapi.co/api/v2/ability/11/"
+  },
+  {
+      name: "oblivious",
+      url: "https://pokeapi.co/api/v2/ability/12/"
+  },
+  {
+      name: "cloud-nine",
+      url: "https://pokeapi.co/api/v2/ability/13/"
+  },
+  {
+      name: "compound-eyes",
+      url: "https://pokeapi.co/api/v2/ability/14/"
+  },
+  {
+      name: "insomnia",
+      url: "https://pokeapi.co/api/v2/ability/15/"
+  },
+  {
+      name: "color-change",
+      url: "https://pokeapi.co/api/v2/ability/16/"
+  },
+  {
+      name: "immunity",
+      url: "https://pokeapi.co/api/v2/ability/17/"
+  },
+  {
+      name: "flash-fire",
+      url: "https://pokeapi.co/api/v2/ability/18/"
+  },
+  {
+      name: "shield-dust",
+      url: "https://pokeapi.co/api/v2/ability/19/"
+  },
+  {
+      name: "own-tempo",
+      url: "https://pokeapi.co/api/v2/ability/20/"
+  }
+]
+
+async function getPokemons({ pageParam }: { pageParam: number }) {
+  const res = await fetch(
+    `https://pokeapi.co/api/v2/ability?limit=20&offset=${pageParam}`
+  );
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch data");
+  }
+  const data = await res.json();
+  console.log("Res", data);
+  let filtered = await data.results.map((pokemon: {}, index: number) => {
+    let paddedIndex =
+      pageParam === 0
+        ? ("00" + (index + 1)).slice(-3)
+        : ("00" + (index + 1 + pageParam)).slice(-3);
+
+    const image = `https://assets.pokemon.com/assets/cms2/img/pokedex/detail/${paddedIndex}.png`;
+    return {
+      ...pokemon,
+      imageUrl: image,
+    };
+  });
+  return filtered;
+}
 
 export default function Home() {
+  const [searchInput, setSearchInput] = useState("")
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <h2 className="mt-4">Welcome to Em's house!</h2>
+      <input 
+        type="text"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+      />
+      <div className="w-full md:w-10/12 m-auto flex mt-5 mb-5 flex-col md:grid md:grid-cols-3 md:grid-row-1 md:items-center gap-4">
+        {POKEMON.map((pokemon) => {
+          if (pokemon.name.includes(searchInput)) {
+            return <PokeComponent key={pokemon.name} name={pokemon.name} />
+          }
+        })}
+        {/* {pokemons?.pages?.map((page) =>
+          page.map(
+            (
+              pokemon: {
+                imageUrl: string;
+                name: string;
+              },
+              index: number
+            ) => {
+              if (page.length == index + 1) {
+                return (
+                  <Pokemon
+                    image={pokemon.imageUrl}
+                    name={pokemon.name}
+                    key={index}
+                    innerRef={ref}
+                  />
+                );
+              } else {
+                return (
+                  <Pokemon
+                    image={pokemon.imageUrl}
+                    name={pokemon.name}
+                    key={index}
+                  />
+                );
+              }
+            }
+          )
+        )} */}
       </div>
     </main>
-  )
+  );
 }
